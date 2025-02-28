@@ -1,0 +1,32 @@
+﻿@page "/"
+@using Galaxy.TomaPedido.AccesoDatos.Contexto
+@using Galaxy.TomaPedido.Entidades
+@inject BdpedidosContext contexto;
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<ul>
+	@foreach (var maestro in ListaMaestro)
+	{
+		<li>@maestro.Nombre</li>
+	}
+</ul>
+
+@code {
+	public List<Maestro> ListaMaestro { get; set; } = new List<Maestro>();
+
+	protected override void OnInitialized()
+	{
+		OnCargarMaestros();
+	}
+
+	private void OnCargarMaestros()
+	{
+		ListaMaestro = contexto.Maestros.ToList();
+		
+	}
+}
