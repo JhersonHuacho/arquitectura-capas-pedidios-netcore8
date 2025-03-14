@@ -3,25 +3,13 @@ using System.Collections.Generic;
 
 namespace Galaxy.TomaPedido.Entidades;
 
-public partial class MaestroDetalle
+public partial class MaestroDetalle : EntidadBase
 {
-	public int Id { get; set; }
-
 	public int IdMaestro { get; set; }
 
 	public string? Codigo { get; set; }
 
 	public string? Valor { get; set; }
-
-	public bool Estado { get; set; }
-
-	public DateTime FechaCreacion { get; set; }
-
-	public string UsuarioCreacion { get; set; } = null!;
-
-	public DateTime? FechaModificacion { get; set; }
-
-	public string? UsuarioModificacion { get; set; }
 
 	public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
 

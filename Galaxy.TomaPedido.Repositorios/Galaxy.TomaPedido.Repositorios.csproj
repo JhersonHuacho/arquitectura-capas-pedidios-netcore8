@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Galaxy.TomaPedido.AccesoDatos\Galaxy.TomaPedido.AccesoDatos.csproj" />
+    <ProjectReference Include="..\Galaxy.TomaPedido.Entidades\Galaxy.TomaPedido.Entidades.csproj" />
   </ItemGroup>
 
 </Project>

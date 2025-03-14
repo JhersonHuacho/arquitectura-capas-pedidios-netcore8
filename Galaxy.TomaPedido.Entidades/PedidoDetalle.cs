@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Galaxy.TomaPedido.Entidades;
 
-public partial class PedidoDetalle
+public partial class PedidoDetalle : EntidadBase
 {
-	public int Id { get; set; }
-
 	public int IdPedido { get; set; }
 
 	public int IdProducto { get; set; }
@@ -18,16 +16,6 @@ public partial class PedidoDetalle
 	public decimal TotalBruto { get; set; }
 
 	public decimal? TotalNeto { get; set; }
-
-	public bool Estado { get; set; }
-
-	public DateTime FechaCreacion { get; set; }
-
-	public string UsuarioCreacion { get; set; } = null!;
-
-	public DateTime? FechaModificacion { get; set; }
-
-	public string? UsuarioModificacion { get; set; }
 
 	public virtual Pedido IdPedidoNavigation { get; set; } = null!;
 

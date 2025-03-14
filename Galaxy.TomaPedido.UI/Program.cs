@@ -1,4 +1,8 @@
 using Galaxy.TomaPedido.AccesoDatos.Contexto;
+using Galaxy.TomaPedido.Repositorios.Implementaciones;
+using Galaxy.TomaPedido.Repositorios.Interfaces;
+using Galaxy.TomaPedido.Servicio.Implementaciones;
+using Galaxy.TomaPedido.Servicio.Interfaces;
 using Galaxy.TomaPedido.UI.Components;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +16,11 @@ builder.Services.AddDbContext<BdpedidosContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("BdPedidos"));
 });
+
+builder.Services.AddScoped<IClienteRepositorio, ClienteRepositorio>();
+builder.Services.AddScoped<IMaestroRepositorio, MaestroRepositorio>();
+
+builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
 
 var app = builder.Build();
 

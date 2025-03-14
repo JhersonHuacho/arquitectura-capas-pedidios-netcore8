@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Galaxy.TomaPedido.Entidades;
 
-public partial class Cliente
+public partial class Cliente : EntidadBase
 {
-	public int Id { get; set; }
-
 	public string RazonSocial { get; set; } = null!;
 
 	public string NumeroDocumento { get; set; } = null!;
@@ -20,16 +18,6 @@ public partial class Cliente
 	public string? Celular { get; set; }
 
 	public int IdRubroMae { get; set; }
-
-	public bool Estado { get; set; }
-
-	public DateTime FechaCreacion { get; set; }
-
-	public string UsuarioCreacion { get; set; } = null!;
-
-	public DateTime? FechaModificacion { get; set; }
-
-	public string? UsuarioModificacion { get; set; }
 
 	public virtual MaestroDetalle IdRubroMaeNavigation { get; set; } = null!;
 

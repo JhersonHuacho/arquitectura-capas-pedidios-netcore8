@@ -1,32 +1,35 @@
 ﻿@page "/"
 @using Galaxy.TomaPedido.AccesoDatos.Contexto
+@using Galaxy.TomaPedido.Dto.Request.Clientes
 @using Galaxy.TomaPedido.Entidades
-@inject BdpedidosContext contexto;
+@using Galaxy.TomaPedido.Repositorios.Interfaces
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@inject IClienteServicio repositorio;
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<ul>
-	@foreach (var maestro in ListaMaestro)
-	{
-		<li>@maestro.Nombre</li>
-	}
-</ul>
+<EditForm Model="RequestDto" OnValidSubmit="OnRegistrar">
+	<div class="row">
+		<div class="col-6">
+			<label>Razon Social</label>
+			<input class="form-control" @bind="RequestDto.RazonSocial" />
+		</div>
+	</div>
+	<button type="submit" class="btn btn-success">Guardar</button>
+</EditForm>
 
 @code {
-	public List<Maestro> ListaMaestro { get; set; } = new List<Maestro>();
+	public Demo RequestDto { get; set; } = new();
 
-	protected override void OnInitialized()
+	public void OnRegistrar()
 	{
-		OnCargarMaestros();
+		// Console.WriteLine("Registrar", RequestDto);
+		Console.WriteLine(RequestDto.RazonSocial);
+		//repositorio.Registrar(RequestDto);
 	}
 
-	private void OnCargarMaestros()
+	public class Demo
 	{
-		ListaMaestro = contexto.Maestros.ToList();
-		
+		public string RazonSocial { get; set; }
 	}
 }
