@@ -1,0 +1,46 @@
+﻿@page "/clientes/Registrar"
+@using Galaxy.TomaPedido.Dto.Request.Clientes
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@using Galaxy.TomaPedido.UI.Components.Pages.Mantenimientos.Clientes.Componentes
+@using Galaxy.TomaPedido.UI.Components.Shared
+@inject IClienteServicio ClienteService
+@inject NavigationManager NavigationManager
+
+<h3>Registro Clientes</h3>
+
+<GroupBox Titulo="Datos del Cliente" Class="mt-4">
+	<ChildContent>
+		<FormCliente Request="Request" OnGuardarEvent="OnGuardar"></FormCliente>
+	</ChildContent>
+</GroupBox>
+
+<Loading IsLoading="IsLoading" />
+
+@code {
+	public ClienteRequestDto Request { get; set; } = new ClienteRequestDto();
+
+	public bool IsLoading { get; set; }
+
+	public async Task OnGuardar()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ClienteService.Registrar(Request);
+
+			if (resultado != null && resultado.Success)
+			{
+				NavigationManager.NavigateTo("/clientes");
+			}
+		}
+		catch (Exception)
+		{
+
+			throw;
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+}

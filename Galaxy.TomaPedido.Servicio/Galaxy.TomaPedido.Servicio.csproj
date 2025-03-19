@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Galaxy.TomaPedido.Comun\Galaxy.TomaPedido.Comun.csproj" />
     <ProjectReference Include="..\Galaxy.TomaPedido.Dto\Galaxy.TomaPedido.Dto.csproj" />
     <ProjectReference Include="..\Galaxy.TomaPedido.Repositorios\Galaxy.TomaPedido.Repositorios.csproj" />
   </ItemGroup>

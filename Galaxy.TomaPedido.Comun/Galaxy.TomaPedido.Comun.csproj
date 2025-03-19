@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Galaxy.TomaPedido.Comun\Galaxy.TomaPedido.Comun.csproj" />
-  </ItemGroup>
-
 </Project>

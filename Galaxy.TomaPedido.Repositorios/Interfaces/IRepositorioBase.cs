@@ -20,6 +20,7 @@ namespace Galaxy.TomaPedido.Repositorios.Interfaces
 			Expression<Func<TEntidad, Tkey>> orderBy,
 			int pagina = 1,
 			int filas = 5);
+
 		Task<TEntidad?> FindAsync(int id);
 		Task<TEntidad> AddAsync(TEntidad entidad);
 		Task UpdateAsync();

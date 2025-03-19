@@ -1,0 +1,94 @@
+﻿@using Galaxy.TomaPedido.Dto.Request.Clientes
+@using Galaxy.TomaPedido.Dto.Response.Maestros
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@inject IMaestroServicio MaestroService
+
+<EditForm Model="Request" OnValidSubmit="OnGuardar">
+	<DataAnnotationsValidator />
+	<div class="row">
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Razon social:</label>
+			<input class="form-control" @bind="Request.RazonSocial" />
+			<ValidationMessage For="@(() => Request.RazonSocial)" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Número documento:</label>
+			<input class="form-control" @bind="Request.NumeroDocumento" />
+			<ValidationMessage For="@(() => Request.NumeroDocumento)" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Contacto:</label>
+			<input class="form-control" @bind="Request.Contacto" />
+			<ValidationMessage For="@(() => Request.Contacto)" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Dirección:</label>
+			<input class="form-control" @bind="Request.Direccion" />
+			<ValidationMessage For="@(() => Request.Direccion)" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Correo Electronico:</label>
+			<input type="email" class="form-control" @bind="Request.CorreoElectronico" />
+			<ValidationMessage For="@(() => Request.CorreoElectronico)" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Celular:</label>
+			<input class="form-control" @bind="Request.Celular" />
+			<ValidationMessage For="@(() => Request.Celular)" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Rubro:</label>
+			<select class="form-select" @bind="Request.IdRubroMae">
+				<option value="0">-Seleccione rubro-</option>
+				@foreach (var item in ListRubros)
+				{
+					<option value="@item.Id">@item.Valor</option>
+				}
+			</select>
+			<ValidationMessage For="@(() => Request.IdRubroMae)" />
+		</div>
+	</div>
+	<div class="row gx-4 mt-4">
+		<div class="col">
+			<button class="btn btn-primary" type="submit"><i class="bi bi-save"></i> Guardar</button>
+			<button class="btn btn-danger" type="button">Cancelar</button>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	[Parameter]
+	public ClienteRequestDto Request { get; set; } = new ClienteRequestDto();
+
+	[Parameter]
+	public EventCallback OnGuardarEvent { get; set; } = default!;
+
+	public List<DetalleMaestroResponse> ListRubros { get; set; } = new List<DetalleMaestroResponse>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await OnListarRubros();
+	}
+
+	private async Task OnListarRubros()
+	{
+		try
+		{
+			var resultado = await MaestroService.ListarDetalleByCodigoPadre("MAE_RUBROS");
+			if (resultado != null && resultado.Success == true && resultado.Data != null)
+			{
+				ListRubros = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+			
+			throw;
+		}
+	}
+
+	private async Task OnGuardar()
+	{
+		await OnGuardarEvent.InvokeAsync();
+	}
+}

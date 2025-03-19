@@ -55,20 +55,33 @@ namespace Galaxy.TomaPedido.Repositorios.Implementaciones
 			int pagina = 1,
 			int filas = 5)
 		{
-			var resultado = await _bdPedidoContext.Set<TEntidad>()
-				.Where(predicado)
-				.AsNoTracking()
-				.OrderBy(orderBy)
-				.Skip((pagina - 1) * filas)
-				.Take(filas)
-				.Select(selector)
-				.ToListAsync();
+			try
+			{
+				var resultado = await _bdPedidoContext.Set<TEntidad>()
+					.Where(predicado)
+					.AsNoTracking()
+					.OrderBy(orderBy)
+					.Skip((pagina - 1) * filas)
+					.Take(filas)
+					.Select(selector)
+					.ToListAsync();
 
-			var totalRegistros = await _bdPedidoContext.Set<TEntidad>()
-				.Where(predicado)
-				.CountAsync();
-
-			return (resultado, totalRegistros);
+				var totalRegistros = await _bdPedidoContext.Set<TEntidad>()
+					.Where(predicado)
+					.CountAsync();				
+			
+				return (resultado, totalRegistros);
+			}
+			catch (TaskCanceledException ex)
+			{
+				Console.WriteLine($"Task was canceled: {ex.Message}");
+				throw;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error: {ex.Message}");
+				throw;
+			}			
 		}
 
 		public async Task<TEntidad?> FindAsync(int id)

@@ -4,32 +4,5 @@
 @using Galaxy.TomaPedido.Entidades
 @using Galaxy.TomaPedido.Repositorios.Interfaces
 @using Galaxy.TomaPedido.Servicio.Interfaces
-@inject IClienteServicio repositorio;
 
 <PageTitle>Home</PageTitle>
-
-<EditForm Model="RequestDto" OnValidSubmit="OnRegistrar">
-	<div class="row">
-		<div class="col-6">
-			<label>Razon Social</label>
-			<input class="form-control" @bind="RequestDto.RazonSocial" />
-		</div>
-	</div>
-	<button type="submit" class="btn btn-success">Guardar</button>
-</EditForm>
-
-@code {
-	public Demo RequestDto { get; set; } = new();
-
-	public void OnRegistrar()
-	{
-		// Console.WriteLine("Registrar", RequestDto);
-		Console.WriteLine(RequestDto.RazonSocial);
-		//repositorio.Registrar(RequestDto);
-	}
-
-	public class Demo
-	{
-		public string RazonSocial { get; set; }
-	}
-}
