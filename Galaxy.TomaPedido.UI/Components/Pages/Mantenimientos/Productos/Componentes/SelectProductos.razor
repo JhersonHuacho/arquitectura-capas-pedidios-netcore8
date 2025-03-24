@@ -1,0 +1,108 @@
+﻿
+@using Galaxy.TomaPedido.Dto.Request.Productos
+@using Galaxy.TomaPedido.Dto.Response.Productos
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@using Galaxy.TomaPedido.UI.Components.Shared
+
+@inject IProductoServicio ProductoService;
+@inject NavigationManager NavigationManager;
+@inject IToastService toastService
+@inject SweetAlertService SwalService
+
+<h3>Listado de Productos</h3>
+
+<GroupBox Titulo="Buscar Productos">
+	<ChildContent>
+		<div class="row">
+			<div class="col-lg-6 col-md-6 col-sm-12">
+				<label>Nombre: </label>
+				<input class="form-control" @bind="Request.Nombre" />
+			</div>
+
+			<div class="col-lg-6 col-md-6 col-sm-12">
+				<div class="btn btn-group btn-group-sm">
+					<button class="btn btn-outline-info" @onclick="ListarProductos"><i class="bi bi-search"></i></button>
+					<button class="btn btn-outline-info" @onclick="Limpiar"><i class="bi bi-trash"></i></button>
+				</div>
+			</div>
+		</div>
+	</ChildContent>
+</GroupBox>
+
+<div class="row mt-3">
+	<div class="table table-responsive">
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Marca</th>
+					<th>Precio</th>
+					<th>Stock</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in LstProductos)
+				{
+					<tr>
+						<td>@item.Nombre</td>
+						<td>@item.Marca</td>
+						<td>@item.PrecioUnitario</td>
+						<td>@item.Stock</td>
+						<td>
+							<button class="btn btn-success" @onclick="() => OnSeleccionarProducto(item)"><i class="bi bi-check"></i></button>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<Loading IsLoading="IsLoading" />
+
+@code {
+	[Parameter]
+	public EventCallback<ListaProductosResponseDto> OnSeleccionarProductoEvent { get; set; } = new();
+	public ICollection<ListaProductosResponseDto> LstProductos { get; set; } = new List<ListaProductosResponseDto>();
+	public BusquedaProductosRequestDto Request { get; set; } = new();
+	public bool IsLoading { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await ListarProductos();
+	}
+
+	public async Task ListarProductos()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ProductoService.Listar(Request);
+
+			if (resultado != null && resultado.Success)
+			{
+				LstProductos = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+			toastService.ShowError("Ocurrió un error al listar los Productos");
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
+	public async Task Limpiar()
+	{
+		Request = new();
+		await ListarProductos();
+	}
+
+	public async Task OnSeleccionarProducto(ListaProductosResponseDto item)
+	{
+		await OnSeleccionarProductoEvent.InvokeAsync(item);
+	}
+}

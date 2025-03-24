@@ -1,0 +1,186 @@
+﻿@attribute [Route(Rutas.Pedido)]
+@using Galaxy.TomaPedido.Comun
+@using Galaxy.TomaPedido.Dto.Request.Pedidos
+@using Galaxy.TomaPedido.Dto.Response.Clientes
+@using Galaxy.TomaPedido.Dto.Response.Productos
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@using Galaxy.TomaPedido.UI.Components.Pages.Mantenimientos.Clientes.Componentes
+@using Galaxy.TomaPedido.UI.Components.Pages.Mantenimientos.Productos.Componentes
+@using Galaxy.TomaPedido.UI.Components.Shared
+@inject IPedidoServicio PedidoService
+@inject IToastService toastService
+
+<h3>Registro Pedido</h3>
+
+<GroupBox Titulo="Cliente" Class="mt-4 mb-4">
+	<ChildContent>
+		<div class="row">
+			<div class="col-4">
+				<label>Cliente:</label>
+				<input class="form-control" readonly @bind="ClienteSeleccionado.RazonSocial" />
+			</div>
+			<div class="col-2 mt-4">
+				<button class="btn btn-success" @onclick="OnShowCliente">Buscar Cliente</button>
+				<button class="btn btn-success" @onclick="OnLimpiar">Limpiar</button>
+			</div>
+		</div>
+	</ChildContent>
+</GroupBox>
+
+<GroupBox Titulo="Resumen" Class="mt-4 mb-4">
+	<ChildContent>
+		<div class="row">
+			<div class="col-lg-2 col-md-2 col-sm-2">
+				<h4>Total Bruto:</h4>
+				<h4>@TotalBruto.ToString("#.##")</h4>
+			</div>
+			<div class="col-lg-2 col-md-2 col-sm-2">
+				<h4>Total Neto:</h4>
+				<h4>@TotalNeto.ToString("#.##")</h4>
+			</div>
+			<div class="col-lg-2 col-md-2 col-sm-2">
+				<h4>Adelanto:</h4>
+				<input class="form-control" @bind="PedidoRequest.Adelanto" />
+			</div>
+		</div>
+	</ChildContent>
+</GroupBox>
+
+<GroupBox Titulo="Lista Productos" Class="mt-4 mb-4">
+	<ChildContent>
+		<div class="row mb-4">
+			<button class="btn btn-success" @onclick="OnShowProducto">Seleccionar Productos</button>
+		</div>
+		<div class="row">
+			<div class="table table-responsive">
+				<table class="table table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>Nombre</th>
+							<th>Marca</th>
+							<th>Precio</th>
+							<th>Stock</th>
+							<th>Cantidad</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in ProductosSeleccionados)
+						{
+							<tr>
+								<td>@item.Nombre</td>
+								<td>@item.Marca</td>
+								<td>@item.PrecioUnitario</td>
+								<td>@item.Stock</td>
+								<td>
+									<input class="form-control" type="number" @bind="@item.Cantidad" @bind:event="onchange" @bind:after="OnCalcular" />
+								</td>
+								<td class="text-center">
+									<button class="btn btn-danger" @onclick="() => OnEliminar(item)"><i class="bi bi-trash"></i></button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row mb-4">
+			<button class="btn btn-primary" @onclick="OnRegistrarPedido">Registrar Pedido</button>			
+		</div>
+	</ChildContent>
+</GroupBox>
+
+<Modal Title="Seleccionar Cliente" @ref="ModalClientes" Size="ModalSize.Large">
+	<BodyTemplate>
+		<SelectClientes OnSeleccionarClienteEvent="OnSeleccionarCliente" />
+	</BodyTemplate>
+</Modal>
+
+<Modal Title="Seleccionar Producto" @ref="ModalProductos" Size="ModalSize.Large">
+	<BodyTemplate>
+		<SelectProductos OnSeleccionarProductoEvent="OnSeleccionarProducto" />
+	</BodyTemplate>
+</Modal>
+
+<Loading IsLoading="IsLoading" />
+
+@code {
+	public ListaClientesResponseDto ClienteSeleccionado { get; set; } = new();
+	public List<ListaProductosResponseDto> ProductosSeleccionados { get; set; } = new();
+	public PedidoRequest PedidoRequest { get; set; } = new();
+	public Modal ModalClientes { get; set; } = default!;
+	public Modal ModalProductos { get; set; } = default!;
+
+	public decimal TotalBruto { get; set; }
+	public decimal TotalNeto { get; set; }
+	public bool IsLoading { get; set; }
+
+
+	public async Task OnSeleccionarCliente(ListaClientesResponseDto item)
+	{
+		ClienteSeleccionado = item;
+		await ModalClientes.HideAsync();
+	}
+
+	public void OnSeleccionarProducto(ListaProductosResponseDto item)
+	{
+		var existe = ProductosSeleccionados.FirstOrDefault(x => x.Id == item.Id);
+		if (existe == null)
+			ProductosSeleccionados.Add(item);
+	}
+
+	public async Task OnShowCliente()
+	{
+		await ModalClientes.ShowAsync();
+	}
+
+	public async Task OnShowProducto()
+	{
+		await ModalProductos.ShowAsync();
+	}
+
+	public void OnLimpiar()
+	{
+		ClienteSeleccionado = new ListaClientesResponseDto();
+	}
+
+	public void OnEliminar(ListaProductosResponseDto item)
+	{
+		ProductosSeleccionados.Remove(item);
+	}
+
+	public void OnCalcular()
+	{
+		TotalBruto = ProductosSeleccionados.Sum(x => Convert.ToDecimal(x.PrecioUnitario) * Convert.ToDecimal(x.Cantidad));
+		TotalNeto = Helpers.CalcularTotalNeto(TotalBruto);
+	}
+
+	public async Task OnRegistrarPedido()
+	{
+		IsLoading = true;
+		try
+		{
+			PedidoRequest.IdCliente = ClienteSeleccionado.Id;
+			PedidoRequest.PedidoDetalles = ProductosSeleccionados.Select(x => new PedidoDetalleRequest
+			{
+				IdProducto = x.Id,
+				Cantidad = Convert.ToInt32(x.Cantidad),
+				PrecioUnitario = Convert.ToDecimal(x.PrecioUnitario)
+			}).ToList();
+
+			var resultado = await PedidoService.Registrar(PedidoRequest);
+			if (resultado != null)
+			{
+				toastService.ShowSuccess("Pedido registrado correctamente");
+			}
+		}
+		catch (Exception ex)
+		{
+			toastService.ShowError("Ocurrió un error al registrar el pedido");
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+}

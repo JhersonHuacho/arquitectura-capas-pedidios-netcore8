@@ -6,5 +6,10 @@
 		{
 			return (int)Math.Ceiling((double)totalFilas / filas);
 		}
+
+		public static decimal CalcularTotalNeto(decimal totalBruto)
+		{
+			return totalBruto / 1.18m;
+		}
 	}
 }

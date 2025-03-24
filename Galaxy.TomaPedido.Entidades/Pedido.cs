@@ -9,9 +9,9 @@ public partial class Pedido : EntidadBase
 
 	public int IdColaborador { get; set; }
 
-	public decimal? TotalBruto { get; set; }
+	public decimal TotalBruto { get; set; }
 
-	public decimal? TotalNeto { get; set; }
+	public decimal TotalNeto { get; set; }
 
 	public decimal? Adelanto { get; set; }
 

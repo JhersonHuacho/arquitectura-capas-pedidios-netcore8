@@ -11,5 +11,7 @@
 		public const string RegistrarProductos = "/Productos/registro";
 		public const string EditarProductosNav = "/Productos/editar/{id:int}";
 		public const string EditarProductos = "/Productos/editar";
+
+		public const string Pedido = "/Pedido";
 	}
 }

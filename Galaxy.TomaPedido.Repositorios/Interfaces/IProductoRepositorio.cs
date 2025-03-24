@@ -9,5 +9,7 @@ namespace Galaxy.TomaPedido.Repositorios.Interfaces
 {
     public interface IProductoRepositorio : IRepositorioBase<Producto>
 	{
-    }
+		Task<List<Producto>> ListarPorId(List<int> listaId);
+
+	}
 }
