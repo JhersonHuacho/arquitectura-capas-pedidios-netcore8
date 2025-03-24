@@ -1,10 +1,13 @@
-﻿@using Galaxy.TomaPedido.Dto.Request.Clientes
+﻿@attribute [Route(Rutas.ListarClientes)]
+@using Galaxy.TomaPedido.Dto.Request.Clientes
 @using Galaxy.TomaPedido.Dto.Response.Clientes
 @using Galaxy.TomaPedido.Servicio.Interfaces
 @using Galaxy.TomaPedido.UI.Components.Shared
-@page "/Clientes"
+@* @page "/Clientes" *@
 @inject IClienteServicio ClienteService;
 @inject NavigationManager NavigationManager;
+@inject IToastService toastService
+@inject SweetAlertService SwalService
 
 <h3>Listado de Clientes</h3>
 
@@ -53,8 +56,8 @@
 						<td>@item.CorreoElectronico</td>
 						<td>@item.Rubro</td>
 						<td>
-							<button class="btn btn-warning">Editar</button>
-							<button class="btn btn-danger">Eliminar</button>
+							<NavLink class="btn btn-warning" href="@($"{Rutas.EditarClientes}/{item.Id}")">Editar</NavLink>
+							<button class="btn btn-danger" @onclick="() => OnEliminar(item)">Eliminar</button>
 						</td>
 					</tr>
 				}
@@ -89,8 +92,7 @@
 		}
 		catch (Exception)
 		{
-
-			throw;
+			toastService.ShowError("Ocurrió un error al listar los clientes");
 		}
 		finally
 		{
@@ -106,6 +108,41 @@
 
 	public void OnNuevo()
 	{
-		NavigationManager.NavigateTo("/clientes/Registrar");
+		NavigationManager.NavigateTo(Rutas.RegistrarClientes);
+	}
+
+	private async Task OnEliminar(ListaClientesResponseDto item)
+	{
+		try
+		{
+			var respuesta = await SwalService.FireAsync(new SweetAlertOptions
+			{
+				Text = $"¿Está seguro de eliminar al cliente {item.RazonSocial}?",
+				Title = "Eliminar cliente",
+				Icon = SweetAlertIcon.Question,
+				ShowCancelButton = true,
+				ConfirmButtonText = "Si",
+				CancelButtonText = "No"
+			});
+
+			if (respuesta.IsConfirmed)
+			{
+				IsLoading = true;
+				var resultado = await ClienteService.Eliminar(item.Id);
+				if (resultado != null)
+				{
+					toastService.ShowSuccess("Cliente eliminado correctamente");
+					await ListarClientes();
+				}
+			}
+		}
+		catch (Exception)
+		{
+			toastService.ShowError("Ocurrió un error al eliminar el cliente");
+		}
+		finally
+		{
+			IsLoading = false;
+		}
 	}
 }

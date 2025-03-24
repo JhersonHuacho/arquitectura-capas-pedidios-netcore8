@@ -7,6 +7,9 @@ namespace Galaxy.TomaPedido.Servicio.Interfaces
 	public interface IClienteServicio
 	{
 		Task<BaseResponse> Registrar(ClienteRequestDto clienteRequestDto);
+		Task<BaseResponse> Actualizar(int id, ClienteRequestDto requestDto);
+		Task<BaseResponse<ClienteResponseDto>> ObtenerPorId(int id);
+		Task<BaseResponse> Eliminar(int id);
 		Task<PaginacionResponse<ListaClientesResponseDto>> Listar(BusquedaClientesRequest request);
 	}
 }

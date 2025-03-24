@@ -1,0 +1,92 @@
+﻿@attribute [Route(Rutas.RegistrarProductos)]
+@using Galaxy.TomaPedido.Dto.Request.Productos
+@using Galaxy.TomaPedido.Dto.Response.Maestros
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@using Galaxy.TomaPedido.UI.Components.Pages.Mantenimientos.Productos.Componentes
+@using Galaxy.TomaPedido.UI.Components.Shared
+@inject IProductoServicio ProductoService
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
+@inject IMaestroServicio MaestroService
+
+<h3>Registro Productos</h3>
+
+<GroupBox Titulo="Datos del Producto" Class="mt-4">
+	<ChildContent>
+		<FormProducto Request="Request" ListaMarcas="ListaMarcas" ListaCategorias="ListaCategorias" OnGuardarEvent="OnGuardar"></FormProducto>
+	</ChildContent>
+</GroupBox>
+
+<Loading IsLoading="IsLoading" />
+
+@code {
+	public ProductoRequestDto Request { get; set; } = new ProductoRequestDto();
+
+	public bool IsLoading { get; set; }
+
+	public List<DetalleMaestroResponse> ListaMarcas { get; set; } = new List<DetalleMaestroResponse>();
+	public List<DetalleMaestroResponse> ListaCategorias { get; set; } = new List<DetalleMaestroResponse>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await OnListarCategorias();
+		await OnListarMarcas();
+	}
+
+	public async Task OnGuardar()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ProductoService.Registrar(Request);
+
+			if (resultado != null && resultado.Success)
+			{
+				toastService.ShowSuccess("Producto Registrado correctamente");
+				NavigationManager.NavigateTo(@Rutas.ListarProductos);
+			}
+		}
+		catch (Exception ex)
+		{
+			toastService.ShowError("Ocurrió un error al registrar el Producto: " + ex.Message);
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
+	private async Task OnListarCategorias()
+	{
+		try
+		{
+			var resultado = await MaestroService.ListarDetalleByCodigoPadre("MAE_CATEGORIAS");
+			if (resultado != null && resultado.Success == true && resultado.Data != null)
+			{
+				ListaCategorias = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+
+			throw;
+		}
+	}
+
+	private async Task OnListarMarcas()
+	{
+		try
+		{
+			var resultado = await MaestroService.ListarDetalleByCodigoPadre("MAE_MARCAS");
+			if (resultado != null && resultado.Success == true && resultado.Data != null)
+			{
+				ListaMarcas = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+
+			throw;
+		}
+	}
+}

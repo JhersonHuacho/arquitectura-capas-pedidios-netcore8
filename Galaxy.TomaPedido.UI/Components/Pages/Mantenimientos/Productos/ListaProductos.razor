@@ -1,0 +1,146 @@
+﻿@attribute [Route(Rutas.ListarProductos)]
+@using Galaxy.TomaPedido.Dto.Request.Productos
+@using Galaxy.TomaPedido.Dto.Response.Productos
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@using Galaxy.TomaPedido.UI.Components.Shared
+@* @page "/Productos" *@
+@inject IProductoServicio ProductoService;
+@inject NavigationManager NavigationManager;
+@inject IToastService toastService
+@inject SweetAlertService SwalService
+
+<h3>Listado de Productos</h3>
+
+<GroupBox Titulo="Buscar Productos">
+	<ChildContent>
+		<div class="row">
+			<div class="col-lg-6 col-md-6 col-sm-12">
+				<label>Nombre: </label>
+				<input class="form-control" @bind="Request.Nombre" />
+			</div>
+			
+			<div class="col-lg-6 col-md-6 col-sm-12">
+				<div class="btn btn-group btn-group-sm">
+					<button class="btn btn-outline-info" @onclick="ListarProductos"><i class="bi bi-search"></i></button>
+					<button class="btn btn-outline-info" @onclick="Limpiar"><i class="bi bi-trash"></i></button>
+					<button class="btn btn-outline-info" @onclick="OnNuevo"><i class="bi bi-plus"></i> Nuevo</button>
+				</div>
+			</div>
+		</div>
+	</ChildContent>
+</GroupBox>
+
+<div class="row mt-3">
+	<div class="table table-responsive">
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Descripción</th>
+					<th>Marca</th>
+					<th>Categoría</th>
+					<th>Precio</th>
+					<th>Stock</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in LstProductos)
+				{
+					<tr>
+						<td>@item.Nombre</td>
+						<td>@item.Descripcion</td>
+						<td>@item.Marca</td>
+						<td>@item.Categoria</td>
+						<td>@item.PrecioUnitario</td>
+						<td>@item.Stock</td>
+						<td>
+							<NavLink class="btn btn-warning" href="@($"{Rutas.EditarProductos}/{item.Id}")">Editar</NavLink>
+							<button class="btn btn-danger" @onclick="() => OnEliminar(item)">Eliminar</button>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<Loading IsLoading="IsLoading" />
+
+@code {
+	public ICollection<ListaProductosResponseDto> LstProductos { get; set; } = new List<ListaProductosResponseDto>();
+	public BusquedaProductosRequestDto Request { get; set; } = new();
+	public bool IsLoading { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await ListarProductos();
+	}
+
+	public async Task ListarProductos()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ProductoService.Listar(Request);
+
+			if (resultado != null && resultado.Success)
+			{
+				LstProductos = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+			toastService.ShowError("Ocurrió un error al listar los Productos");
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
+	public async Task Limpiar()
+	{
+		Request = new();
+		await ListarProductos();
+	}
+
+	public void OnNuevo()
+	{
+		NavigationManager.NavigateTo(Rutas.RegistrarProductos);
+	}
+
+	private async Task OnEliminar(ListaProductosResponseDto item)
+	{
+		try
+		{
+			var respuesta = await SwalService.FireAsync(new SweetAlertOptions
+				{
+					Text = $"¿Está seguro de eliminar al Producto {item.Nombre}?",
+					Title = "Eliminar Producto",
+					Icon = SweetAlertIcon.Question,
+					ShowCancelButton = true,
+					ConfirmButtonText = "Si",
+					CancelButtonText = "No"
+				});
+
+			if (respuesta.IsConfirmed)
+			{
+				IsLoading = true;
+				var resultado = await ProductoService.Eliminar(item.Id);
+				if (resultado != null)
+				{
+					toastService.ShowSuccess("Producto eliminado correctamente");
+					await ListarProductos();
+				}
+			}
+		}
+		catch (Exception)
+		{
+			toastService.ShowError("Ocurrió un error al eliminar el Producto");
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+}

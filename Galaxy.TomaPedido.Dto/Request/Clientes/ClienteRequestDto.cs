@@ -21,6 +21,8 @@ namespace Galaxy.TomaPedido.Dto.Request.Clientes
 		[Display(Name = "Correo Electronico")]
 		public string CorreoElectronico { get; set; } = default!;
 
+		[MaxLength(9, ErrorMessage = Constantes.MensajeMaxLength)]
+		//[MinLength(9, ErrorMessage = Constantes.MensajeMinLength)]
 		public string? Celular { get; set; }
 
 		[Required(ErrorMessage = Constantes.MensajeRequired)]

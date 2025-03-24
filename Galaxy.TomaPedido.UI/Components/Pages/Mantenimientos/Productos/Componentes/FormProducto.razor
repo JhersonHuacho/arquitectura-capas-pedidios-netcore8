@@ -1,0 +1,81 @@
+﻿@using Galaxy.TomaPedido.Dto.Request.Productos
+@using Galaxy.TomaPedido.Dto.Response.Maestros
+@using Galaxy.TomaPedido.Servicio.Interfaces
+
+<EditForm Model="Request" OnValidSubmit="OnGuardar">
+	<DataAnnotationsValidator />
+	<div class="row">
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Nombre:</label>
+			<input class="form-control" @bind="Request.Nombre" />
+			<ValidationMessage For="@(() => Request.Nombre)" />
+		</div>
+
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Descripcion:</label>
+			<textarea class="form-control" @bind="Request.Descripcion" />
+			<ValidationMessage For="@(() => Request.Descripcion)" />
+		</div>
+		
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Marca:</label>
+			<select class="form-select" @bind="Request.IdMarcaMae">
+				<option value="0">-Seleccione Marca-</option>
+				@foreach (var item in ListaMarcas)
+				{
+					<option value="@item.IdMaestro">@item.Valor</option>
+				}
+			</select>
+			<ValidationMessage For="@(() => Request.IdMarcaMae)" />
+		</div>
+
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Categoria:</label>
+			<select class="form-select" @bind="Request.IdCategoriaMae">
+				<option value="0">-Seleccione Categoría-</option>
+				@foreach (var item in ListaCategorias)
+				{
+					<option value="@item.IdMaestro">@item.Valor</option>
+				}
+			</select>
+			<ValidationMessage For="@(() => Request.IdCategoriaMae)" />
+		</div>
+
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Precios:</label>
+			<InputNumber class="form-control" @bind-Value="Request.PrecioUnitario" />
+			<ValidationMessage For="@(() => Request.PrecioUnitario)" />
+		</div>
+
+		<div class="col-lg-6 col-md-6 col-sm-12">
+			<label>Stock:</label>
+			<input type="number" class="form-control" @bind="Request.Stock" />
+			<ValidationMessage For="@(() => Request.Stock)" />
+		</div>
+	</div>
+	<div class="row gx-4 mt-4">
+		<div class="col">
+			<button class="btn btn-primary" type="submit"><i class="bi bi-save"></i> Guardar</button>
+			<NavLink class="btn btn-danger" type="button" href="Productos">Cancelar</NavLink>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	[Parameter]
+	public ProductoRequestDto Request { get; set; } = new ProductoRequestDto();
+
+	[Parameter]
+	public EventCallback OnGuardarEvent { get; set; } = default!;
+
+	[Parameter]
+	public List<DetalleMaestroResponse> ListaMarcas { get; set; } = new List<DetalleMaestroResponse>();
+	[Parameter]
+	public List<DetalleMaestroResponse> ListaCategorias { get; set; } = new List<DetalleMaestroResponse>();
+
+
+	private async Task OnGuardar()
+	{
+		await OnGuardarEvent.InvokeAsync();
+	}
+}

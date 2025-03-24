@@ -1,5 +1,6 @@
-﻿@attribute [Route(Rutas.RegistrarClientes)]
+﻿@attribute [Route(Rutas.EditarClientesNav)]
 @using Galaxy.TomaPedido.Dto.Request.Clientes
+@using Galaxy.TomaPedido.Dto.Response.Clientes
 @using Galaxy.TomaPedido.Dto.Response.Maestros
 @using Galaxy.TomaPedido.Servicio.Interfaces
 @using Galaxy.TomaPedido.UI.Components.Pages.Mantenimientos.Clientes.Componentes
@@ -9,7 +10,7 @@
 @inject IToastService toastService
 @inject IMaestroServicio MaestroService
 
-<h3>Registro Clientes</h3>
+<h3>Editar Cliente</h3>
 
 <GroupBox Titulo="Datos del Cliente" Class="mt-4">
 	<ChildContent>
@@ -20,15 +21,52 @@
 <Loading IsLoading="IsLoading" />
 
 @code {
-	public ClienteRequestDto Request { get; set; } = new ClienteRequestDto();
+	[Parameter]
+	public int id { get; set; }
 
-	public bool IsLoading { get; set; }
+	public ClienteRequestDto Request { get; set; } = new ClienteRequestDto();
+	public ClienteResponseDto Response { get; set; } = new ClienteResponseDto();
 
 	public List<DetalleMaestroResponse> ListRubros { get; set; } = new List<DetalleMaestroResponse>();
 
+	public bool IsLoading { get; set; }
+
 	protected override async Task OnInitializedAsync()
 	{
+		await ObtenerPorId();
 		await OnListarRubros();
+	}
+
+	public async Task ObtenerPorId()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ClienteService.ObtenerPorId(id);
+
+			if (resultado != null && resultado.Data != null)
+			{
+				Response = resultado.Data;
+				Request = new()
+				{
+					Celular = Response.Celular,
+					NumeroDocumento = Response.NumeroDocumento,
+					Contacto = Response.Contacto,
+					CorreoElectronico = Response.CorreoElectronico,
+					Direccion = Response.Direccion		,
+					IdRubroMae = Response.IdRubroMae,
+					RazonSocial = Response.RazonSocial
+				};
+			}
+		}
+		catch (Exception ex)
+		{
+			toastService.ShowError("Ocurrió un error al obtener el cliente: " + ex.Message);
+		}
+		finally
+		{
+			IsLoading = false;
+		}
 	}
 
 	public async Task OnGuardar()
@@ -36,18 +74,17 @@
 		IsLoading = true;
 		try
 		{
-			var resultado = await ClienteService.Registrar(Request);
+			var resultado = await ClienteService.Actualizar(id, Request);
 
-			if (resultado != null && resultado.Success)
+			if (resultado != null)
 			{
-				toastService.ShowSuccess("Cliente Registrado correctamente");
+				toastService.ShowSuccess("Cliente editado correctamente");
 				NavigationManager.NavigateTo(@Rutas.ListarClientes);
 			}
 		}
 		catch (Exception ex)
 		{
-			toastService.ShowError("Ocurrió un error al registrar el cliente: " + ex.Message);
-			throw;
+			toastService.ShowError("Ocurrió un error al editar el cliente: " + ex.Message);
 		}
 		finally
 		{

@@ -12,6 +12,8 @@ namespace Galaxy.TomaPedido.Servicio.Mappers
 			CreateMap<ClienteRequestDto, Cliente>();
 			CreateMap<Cliente, ListaClientesResponseDto>()
 				.ForMember(p => p.Rubro, origen => origen.MapFrom(o => o.IdRubroMaeNavigation.Valor));
+
+			CreateMap<Cliente, ClienteResponseDto>();
 		}
 	}
 }

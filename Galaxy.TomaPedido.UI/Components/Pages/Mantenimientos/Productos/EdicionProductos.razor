@@ -1,0 +1,129 @@
+﻿@attribute [Route(Rutas.EditarProductosNav)]
+@using Galaxy.TomaPedido.Dto.Request.Productos
+@using Galaxy.TomaPedido.Dto.Response.Productos
+@using Galaxy.TomaPedido.Dto.Response.Maestros
+@using Galaxy.TomaPedido.Servicio.Interfaces
+@using Galaxy.TomaPedido.UI.Components.Pages.Mantenimientos.Productos.Componentes
+@using Galaxy.TomaPedido.UI.Components.Shared
+@inject IProductoServicio ProductoService
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
+@inject IMaestroServicio MaestroService
+
+<h3>Editar Producto</h3>
+
+<GroupBox Titulo="Datos del Producto" Class="mt-4">
+	<ChildContent>
+		<FormProducto Request="Request" ListaMarcas="ListaMarcas" ListaCategorias="ListaCategorias" OnGuardarEvent="OnGuardar"></FormProducto>
+	</ChildContent>
+</GroupBox>
+
+<Loading IsLoading="IsLoading" />
+
+@code {
+	[Parameter]
+	public int id { get; set; }
+
+	public ProductoRequestDto Request { get; set; } = new ProductoRequestDto();
+	public ProductoResponseDto Response { get; set; } = new ProductoResponseDto();
+
+	public List<DetalleMaestroResponse> ListaMarcas { get; set; } = new List<DetalleMaestroResponse>();
+	public List<DetalleMaestroResponse> ListaCategorias { get; set; } = new List<DetalleMaestroResponse>();
+
+	public bool IsLoading { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await ObtenerPorId();
+		await OnListarCategorias();
+		await OnListarMarcas();
+	}
+
+	public async Task ObtenerPorId()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ProductoService.ObtenerPorId(id);
+
+			if (resultado != null && resultado.Data != null)
+			{
+				Response = resultado.Data;
+				Request = new()
+				{
+					Descripcion = Response.Descripcion,
+					IdCategoriaMae = Response.IdCategoriaMae,
+					IdMarcaMae = Response.IdMarcaMae,
+					Nombre = Response.Nombre,
+					PrecioUnitario = Response.PrecioUnitario,
+					Stock = Response.Stock
+				};
+			}
+		}
+		catch (Exception ex)
+		{
+			toastService.ShowError("Ocurrió un error al obtener el Producto: " + ex.Message);
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
+	public async Task OnGuardar()
+	{
+		IsLoading = true;
+		try
+		{
+			var resultado = await ProductoService.Actualizar(id, Request);
+
+			if (resultado != null)
+			{
+				toastService.ShowSuccess("Producto editado correctamente");
+				NavigationManager.NavigateTo(@Rutas.ListarProductos);
+			}
+		}
+		catch (Exception ex)
+		{
+			toastService.ShowError("Ocurrió un error al editar el Producto: " + ex.Message);
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
+	private async Task OnListarCategorias()
+	{
+		try
+		{
+			var resultado = await MaestroService.ListarDetalleByCodigoPadre("MAE_CATEGORIAS");
+			if (resultado != null && resultado.Success == true && resultado.Data != null)
+			{
+				ListaCategorias = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+
+			throw;
+		}
+	}
+
+	private async Task OnListarMarcas()
+	{
+		try
+		{
+			var resultado = await MaestroService.ListarDetalleByCodigoPadre("MAE_MARCAS");
+			if (resultado != null && resultado.Success == true && resultado.Data != null)
+			{
+				ListaMarcas = resultado.Data;
+			}
+		}
+		catch (Exception)
+		{
+
+			throw;
+		}
+	}
+}

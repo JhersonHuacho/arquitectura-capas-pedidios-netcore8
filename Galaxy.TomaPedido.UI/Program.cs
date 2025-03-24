@@ -1,3 +1,5 @@
+using Blazored.Toast;
+using CurrieTechnologies.Razor.SweetAlert2;
 using Galaxy.TomaPedido.AccesoDatos.Contexto;
 using Galaxy.TomaPedido.Repositorios.Implementaciones;
 using Galaxy.TomaPedido.Repositorios.Interfaces;
@@ -6,6 +8,7 @@ using Galaxy.TomaPedido.Servicio.Interfaces;
 using Galaxy.TomaPedido.Servicio.Mappers;
 using Galaxy.TomaPedido.UI.Components;
 using Microsoft.EntityFrameworkCore;
+using Scrutor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,9 @@ builder.Services.AddDbContext<BdpedidosContext>(options =>
 });
 
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddBlazoredToast();
+
+builder.Services.AddSweetAlert2();
 
 builder.Services.AddScoped<IClienteRepositorio, ClienteRepositorio>();
 builder.Services.AddScoped<IMaestroRepositorio, MaestroRepositorio>();
@@ -26,10 +32,19 @@ builder.Services.AddScoped<IMaestroRepositorio, MaestroRepositorio>();
 builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
 builder.Services.AddScoped<IMaestroServicio, MestroServicio>();
 
+builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
+builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
+
+//builder.Services.Scan(p =>
+//    p.FromAssemblies(typeof(IClienteRepositorio).Assembly, typeof(IClienteServicio).Assembly)
+//        .AddClasses(false)
+//        .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+//        .AsMatchingInterface()
+//        .WithScopedLifetime());
+
 builder.Services.AddAutoMapper(p =>
 {
-    p.AddProfile<ClienteMap>();
-    p.AddProfile<MaestroMap>();
+    p.AddMaps(typeof(ClienteMap).Assembly);
 });
 
 var app = builder.Build();

@@ -42,6 +42,84 @@ namespace Galaxy.TomaPedido.Servicio.Implementaciones
 			return response;
 		}
 
+		public async Task<BaseResponse> Actualizar(int id, ClienteRequestDto requestDto)
+		{
+			var response = new BaseResponse();
+
+			try
+			{
+				var cliente = await _clienteRepositorio.FindAsync(id);
+				if (cliente == null)
+				{
+					throw new InvalidCastException("Cliente no encontrado");
+				}
+
+				_mapper.Map(requestDto, cliente);
+
+				await _clienteRepositorio.UpdateAsync();
+
+				response.Message = "Cliente actualizado correctamente";
+				response.Success = true;
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
+			}
+
+			return response;
+		}
+
+		public async Task<BaseResponse<ClienteResponseDto>> ObtenerPorId(int id)
+		{
+			var response = new BaseResponse<ClienteResponseDto>();
+
+			try
+			{
+				var cliente = await _clienteRepositorio.FindAsync(id);
+				if (cliente == null)
+				{
+					throw new InvalidCastException("Cliente no encontrado");
+				}
+
+				response.Data = _mapper.Map<ClienteResponseDto>(cliente);
+				response.Success = true;
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
+			}
+
+			return response;
+		}
+
+		public async Task<BaseResponse> Eliminar(int id)
+		{
+			var response = new BaseResponse();
+
+			try
+			{
+				var cliente = await _clienteRepositorio.FindAsync(id);
+				if (cliente == null)
+				{
+					throw new InvalidCastException("Cliente no encontrado");
+				}
+
+				await _clienteRepositorio.DeleteAsync(id);
+
+				response.Message = "Cliente eliminado correctamente";
+				response.Success = true;
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
+			}
+
+			return response;
+		}
+
 		public async Task<PaginacionResponse<ListaClientesResponseDto>> Listar(BusquedaClientesRequest request)
 		{
 			var response = new PaginacionResponse<ListaClientesResponseDto>();

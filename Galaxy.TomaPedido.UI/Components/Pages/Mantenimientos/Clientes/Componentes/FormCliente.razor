@@ -1,7 +1,6 @@
 ﻿@using Galaxy.TomaPedido.Dto.Request.Clientes
 @using Galaxy.TomaPedido.Dto.Response.Maestros
 @using Galaxy.TomaPedido.Servicio.Interfaces
-@inject IMaestroServicio MaestroService
 
 <EditForm Model="Request" OnValidSubmit="OnGuardar">
 	<DataAnnotationsValidator />
@@ -33,7 +32,7 @@
 		</div>
 		<div class="col-lg-6 col-md-6 col-sm-12">
 			<label>Celular:</label>
-			<input class="form-control" @bind="Request.Celular" />
+			<input type="tel" class="form-control" maxlength="9" @bind="Request.Celular" />
 			<ValidationMessage For="@(() => Request.Celular)" />
 		</div>
 		<div class="col-lg-6 col-md-6 col-sm-12">
@@ -42,7 +41,7 @@
 				<option value="0">-Seleccione rubro-</option>
 				@foreach (var item in ListRubros)
 				{
-					<option value="@item.Id">@item.Valor</option>
+					<option value="@item.IdMaestro">@item.Valor</option>
 				}
 			</select>
 			<ValidationMessage For="@(() => Request.IdRubroMae)" />
@@ -51,7 +50,7 @@
 	<div class="row gx-4 mt-4">
 		<div class="col">
 			<button class="btn btn-primary" type="submit"><i class="bi bi-save"></i> Guardar</button>
-			<button class="btn btn-danger" type="button">Cancelar</button>
+			<NavLink class="btn btn-danger" type="button" href="clientes">Cancelar</NavLink>
 		</div>
 	</div>
 </EditForm>
@@ -63,29 +62,9 @@
 	[Parameter]
 	public EventCallback OnGuardarEvent { get; set; } = default!;
 
+	[Parameter]
 	public List<DetalleMaestroResponse> ListRubros { get; set; } = new List<DetalleMaestroResponse>();
-
-	protected override async Task OnInitializedAsync()
-	{
-		await OnListarRubros();
-	}
-
-	private async Task OnListarRubros()
-	{
-		try
-		{
-			var resultado = await MaestroService.ListarDetalleByCodigoPadre("MAE_RUBROS");
-			if (resultado != null && resultado.Success == true && resultado.Data != null)
-			{
-				ListRubros = resultado.Data;
-			}
-		}
-		catch (Exception)
-		{
-			
-			throw;
-		}
-	}
+	
 
 	private async Task OnGuardar()
 	{
